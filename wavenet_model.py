@@ -145,9 +145,9 @@ class WaveNetModel(nn.Module):
 
             # dilated convolution
             filter = self.filter_convs[i](residual)
-            filter = F.tanh(filter)
+            filter = torch.tanh(filter)
             gate = self.gate_convs[i](residual)
-            gate = F.sigmoid(gate)
+            gate = torch.sigmoid(gate)
             x = filter * gate
 
             # parametrized skip connection
@@ -176,7 +176,7 @@ class WaveNetModel(nn.Module):
 
     def queue_dilate(self, input, dilation, init_dilation, i):
         queue = self.dilated_queues[i]
-        queue.enqueue(input.data[0])
+        queue.enqueue(input[0, :, 0])
         x = queue.dequeue(num_deq=self.kernel_size,
                           dilation=dilation)
         x = x.unsqueeze(0)

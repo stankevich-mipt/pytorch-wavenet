@@ -90,10 +90,3 @@ class TensorboardLogger(Logger):
         with self.writer.as_default():
             tf.summary.scalar('validation loss', avg_loss, step=current_step)
             tf.summary.scalar('validation accuracy', avg_accuracy, step=current_step)
-
-    def log_audio(self, current_step):
-
-        with self.writer.as_default():
-            samples = self.generate_function()
-            tf_samples = tf.convert_to_tensor(samples)
-            tf.summary.audio('audio sample', tf_samples, 16000, step=current_step)
