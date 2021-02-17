@@ -213,8 +213,8 @@ class WaveNetModel(nn.Module):
             input = Variable(torch.FloatTensor(1, self.classes, self.receptive_field).zero_())
             input = input.scatter_(1, generated[-self.receptive_field:].view(1, -1, self.receptive_field), 1.)
 
-            x = self.wavenet(input,
-                             dilation_func=self.wavenet_dilate)[:, :, -1].squeeze()
+            with torch.no_grad():
+                x = self.wavenet(input, dilation_func=self.wavenet_dilate)[:, :, -1].squeeze()
 
             if temperature > 0:
                 x /= temperature
@@ -258,8 +258,8 @@ class WaveNetModel(nn.Module):
 
         # fill queues with given samples
         for i in range(num_given_samples - 1):
-            x = self.wavenet(input,
-                             dilation_func=self.queue_dilate)
+            with torch.no_grad():
+                x = self.wavenet(input, dilation_func=self.queue_dilate)
             input.zero_()
             input = input.scatter_(1, first_samples[i + 1:i + 2].view(1, -1, 1), 1.).view(1, self.classes, 1)
 
@@ -274,8 +274,9 @@ class WaveNetModel(nn.Module):
         regularizer = regularizer.squeeze() * regularize
         tic = time.time()
         for i in range(num_samples):
-            x = self.wavenet(input,
-                             dilation_func=self.queue_dilate).squeeze()
+
+            with torch.no_grad():
+                x = self.wavenet(input, dilation_func=self.queue_dilate).squeeze()
 
             x -= regularizer
 
